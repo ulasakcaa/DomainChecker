@@ -116,7 +116,7 @@
 
             if (isFavorite) {            
                 $.ajax({
-                    url: '/api/DomainChecker/DeleteFavorite/${domainId}',
+                    url: `/api/DomainChecker/DeleteFavorite/${domainId}`,
                     method: 'DELETE',
                     success: function () {
                         $(element).removeClass('checked').addClass('unchecked');
@@ -127,6 +127,7 @@
                         alert('An error occurred while removing from favorites.');
                     }
                 });
+
             }
             else {
         
