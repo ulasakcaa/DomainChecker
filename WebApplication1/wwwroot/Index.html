@@ -79,7 +79,7 @@
             var domainName = $('#domainInput').val();
 
             $.ajax({
-                url: 'https://localhost:44388/api/DomainChecker/CheckDomain?domainName=' + encodeURIComponent(domainName),
+                url: 'api/DomainChecker/CheckDomain?domainName=' + encodeURIComponent(domainName),
                 method: 'GET',
                 success: function (response) {
                     if (response.isAvailable) {
@@ -106,7 +106,7 @@
             }
 
             $.ajax({
-                url: 'https://localhost:44388/api/DomainChecker/AddFavorite',
+                url: 'api/DomainChecker/AddFavorite',
                 method: 'POST',
                 contentType: 'application/json',
                 data: JSON.stringify(currentDomainId), // Sadece ID gönderiliyor
@@ -120,9 +120,6 @@
                 }
             });
         }
-
-
-
     </script>
 </body>
 </html>

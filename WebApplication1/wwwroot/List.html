@@ -80,7 +80,7 @@
 
         function getDomains() {
             $.ajax({
-                url: 'https://localhost:44388/api/DomainChecker/GetAll',
+                url: '/api/DomainChecker/GetAll',
                 method: 'GET',
                 success: function (domains) {
                     var tbody = $('#domainTable tbody');
@@ -116,7 +116,7 @@
 
             if (isFavorite) {            
                 $.ajax({
-                    url: `https://localhost:44388/api/DomainChecker/DeleteFavorite/${domainId}`,
+                    url: '/api/DomainChecker/DeleteFavorite/${domainId}',
                     method: 'DELETE',
                     success: function () {
                         $(element).removeClass('checked').addClass('unchecked');
@@ -131,7 +131,7 @@
             else {
         
                 $.ajax({
-                    url: 'https://localhost:44388/api/DomainChecker/AddFavorite',
+                    url: '/api/DomainChecker/AddFavorite',
                     method: 'POST',
                     contentType: 'application/json',
                     data: JSON.stringify(domainId),
@@ -149,7 +149,7 @@
      
         function checkDomain(domainName, rowIndex) {
             $.ajax({
-                url: 'https://localhost:44388/api/DomainChecker/CheckDomain?domainName=' + encodeURIComponent(domainName),
+                url: '/api/DomainChecker/CheckDomain?domainName=' + encodeURIComponent(domainName),
                 method: 'GET',
                 success: function (response) {
                     var row = $('#domainTable tbody tr').eq(rowIndex);
