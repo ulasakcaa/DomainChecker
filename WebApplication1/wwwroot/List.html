@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Domain Checker</title>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .sidebar {
+            height: 100vh;
+            background-color: #e9ecef;
+            padding: 1rem;
+        }
+
+        .content {
+            padding: 2rem;
+        }
+
+        .favorite-icon {
+            cursor: pointer;
+            font-size: 1.5rem;
+        }
+
+            .favorite-icon.checked {
+                color: gold;
+            }
+
+            .favorite-icon.unchecked {
+                color: gray;
+            }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">          
+            <nav class="col-md-2 sidebar">
+                <h5>Menu</h5>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a href="Index.html" class="btn btn-outline-primary w-100 my-2">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="List.html" class="btn btn-outline-secondary w-100 my-2">Favorites</a>
+                    </li>
+                </ul>
+            </nav>       
+            <main class="col-md-10 content">            
+                <table id="domainTable" class="table table-striped mt-5">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Domain Name</th>
+                            <th>Availability</th>
+                            <th>Last Checked</th>
+                            <th>Expire Date</th>                          
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>                 
+                    </tbody>
+                </table>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+      
+        $(document).ready(function () {
+            getDomains();
+        });
+
+        function getDomains() {
+            $.ajax({
+                url: 'https://localhost:44388/api/DomainChecker/GetAll',
+                method: 'GET',
+                success: function (domains) {
+                    var tbody = $('#domainTable tbody');
+                    tbody.empty();
+                    domains.forEach((domain, index) => {
+                        tbody.append(`
+                      <tr>
+                          <td>${index + 1}</td>
+                          <td>${domain.domainName}</td>
+                          <td>${domain.isAvailable ? 'Available' : 'Not Available'}</td>
+                          <td>${domain.lastCheckedDate || '-'}</td>
+                          <td>${domain.expireDate || '-'}</td>
+                          <td>
+                           <i class="action-icons bi bi-search" onclick="checkDomain('${domain.domainName}', ${index})" title="Re-check Domain"></i>
+                              <i class="favorite-icon ${domain.isFavorite ? 'checked' : 'unchecked'}" 
+                                 data-id="${domain.id}" 
+                                 onclick="toggleFavorite(${domain.id}, this)">
+                                 &#9733;
+                              </i>
+                          </td>
+                      </tr>
+                  `);
+                    });
+                },
+                error: function () {
+                    alert('An error occurred while fetching the domain list.');
+                }
+            });
+        }
+
+        function toggleFavorite(domainId, element) {
+            var isFavorite = $(element).hasClass('checked');
+
+            if (isFavorite) {            
+                $.ajax({
+                    url: `https://localhost:44388/api/DomainChecker/DeleteFavorite/${domainId}`,
+                    method: 'DELETE',
+                    success: function () {
+                        $(element).removeClass('checked').addClass('unchecked');
+                        alert('Domain removed from favorites!');
+                        getDomains();
+                    },
+                    error: function () {
+                        alert('An error occurred while removing from favorites.');
+                    }
+                });
+            }
+            else {
+        
+                $.ajax({
+                    url: 'https://localhost:44388/api/DomainChecker/AddFavorite',
+                    method: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(domainId),
+                    success: function () {
+                        $(element).removeClass('unchecked').addClass('checked');
+                        alert('Domain added to favorites!');
+                        getDomains();
+                    },
+                    error: function () {
+                        alert('An error occurred while adding to favorites.');
+                    }
+                });
+            }          
+        }      
+     
+        function checkDomain(domainName, rowIndex) {
+            $.ajax({
+                url: 'https://localhost:44388/api/DomainChecker/CheckDomain?domainName=' + encodeURIComponent(domainName),
+                method: 'GET',
+                success: function (response) {
+                    var row = $('#domainTable tbody tr').eq(rowIndex);
+                    row.find('td').eq(2).text(response.isAvailable ? 'Available' : 'Not Available');
+                    alert(`Domain "${domainName}" re-checked successfully!`);
+                    getDomains();
+                },
+                error: function () {
+                    alert('An error occurred while re-checking the domain.');
+                }
+            });
+        }  
+       
+    </script>
+</body>
+</html>
